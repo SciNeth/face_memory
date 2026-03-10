@@ -22,51 +22,47 @@
   * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
   body { background: var(--bg); color: var(--text); font-family: 'Noto Sans JP', sans-serif; min-height: 100vh; overflow-x: hidden; }
   .container { max-width: 600px; margin: 0 auto; padding: 20px; }
-  header { text-align: center; margin-bottom: 20px; }
-  h1 { font-family: 'Syne', sans-serif; font-size: 1.8rem; background: linear-gradient(135deg, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+  
+  header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+  h1 { font-family: 'Syne', sans-serif; font-size: 1.5rem; background: linear-gradient(135deg, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+  /* 言語切り替えボタン */
+  .lang-switch { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 5px 12px; border-radius: 20px; font-size: 12px; cursor: pointer; font-weight: bold; }
 
   /* 説明カード */
   .intro-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 24px; }
   .intro-card h2 { color: var(--accent); font-size: 15px; margin-bottom: 10px; }
-  .intro-card p { font-size: 13px; line-height: 1.6; color: var(--text); }
+  .intro-card p { font-size: 13px; line-height: 1.6; }
 
-  /* 安全についての説明 */
-  .safety-note { background: rgba(74, 222, 128, 0.05); border: 1px solid rgba(74, 222, 128, 0.2); border-radius: 12px; padding: 12px; margin-top: 15px; display: flex; align-items: flex-start; gap: 10px; }
-  .safety-note div { font-size: 12px; color: #4ade80; line-height: 1.5; }
-  .more-link { display: inline-block; margin-top: 8px; color: var(--accent); text-decoration: underline; cursor: pointer; font-weight: 700; }
-
-  /* ポップアップ窓（専門用語解説用） */
-  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
-  .modal-content { background: var(--card); border: 1px solid var(--border); border-radius: 20px; width: 90%; max-width: 500px; padding: 24px; position: relative; animation: modalIn 0.3s ease; }
-  .modal-content h3 { font-size: 18px; margin-bottom: 16px; color: var(--accent); display: flex; align-items: center; gap: 8px; }
-  .modal-body { font-size: 13px; line-height: 1.7; color: var(--text); }
-  .modal-body strong { color: var(--accent2); }
-  .modal-body ul { margin: 12px 0; padding-left: 20px; }
-  .close-btn { margin-top: 20px; width: 100%; background: var(--surface); color: var(--text); border: 1px solid var(--border); padding: 12px; border-radius: 100px; cursor: pointer; font-weight: 700; }
-
-  @keyframes modalIn { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
-
-  /* フローチャート */
   .guide-steps { display: flex; align-items: center; justify-content: space-between; margin-top: 15px; gap: 8px; }
   .step { flex: 1; background: rgba(255, 255, 255, 0.03); padding: 10px 5px; border-radius: 10px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.05); }
   .step-num { color: var(--accent2); font-family: 'Syne'; font-size: 18px; font-weight: 800; display: block; }
   .step p { font-size: 10px; white-space: nowrap; }
   .step-arrow { color: var(--muted); font-size: 14px; }
 
+  .safety-note { background: rgba(74, 222, 128, 0.05); border: 1px solid rgba(74, 222, 128, 0.2); border-radius: 12px; padding: 12px; margin-top: 15px; display: flex; align-items: flex-start; gap: 10px; font-size: 12px; color: #4ade80; }
+  .more-link { display: inline-block; margin-top: 8px; color: var(--accent); text-decoration: underline; cursor: pointer; font-weight: 700; }
+
+  /* モーダル */
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+  .modal-content { background: var(--card); border: 1px solid var(--border); border-radius: 20px; width: 90%; max-width: 500px; padding: 24px; }
+  .modal-body { font-size: 13px; line-height: 1.7; }
+  .close-btn { margin-top: 20px; width: 100%; background: var(--surface); color: var(--text); border: 1px solid var(--border); padding: 12px; border-radius: 100px; cursor: pointer; }
+
   /* アップロード */
-  .upload-zone { border: 2px dashed var(--border); border-radius: 20px; padding: 40px 20px; text-align: center; background: var(--surface); cursor: pointer; transition: 0.3s; }
+  .upload-zone { border: 2px dashed var(--border); border-radius: 20px; padding: 40px 20px; text-align: center; background: var(--surface); cursor: pointer; }
   .upload-zone.loading { opacity: 0.5; pointer-events: none; }
   #fileInput { display: none; }
 
-  .btn { display: inline-flex; align-items: center; justify-content: center; padding: 14px 24px; border-radius: 100px; font-weight: 700; cursor: pointer; border: none; font-size: 14px; }
-  .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: white; width: 100%; box-shadow: 0 4px 15px rgba(124,109,250,0.3); }
+  .btn { display: inline-flex; align-items: center; justify-content: center; padding: 14px 24px; border-radius: 100px; font-weight: 700; cursor: pointer; border: none; font-size: 14px; transition: 0.2s; }
+  .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: white; width: 100%; }
   .btn-ghost { background: rgba(255,255,255,0.05); color: var(--text); border: 1px solid var(--border); margin-top: 10px; width: 100%; }
 
   .preview-section, .game-section { display: none; margin-top: 10px; animation: fadeIn 0.4s ease; }
   .preview-section.visible, .game-section.visible { display: block; }
   #originalCanvas { width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--border); }
   
-  .status-bar { margin: 15px 0; padding: 12px; background: var(--card); border-radius: 8px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
+  .status-bar { margin: 15px 0; padding: 12px; background: var(--card); border-radius: 8px; font-size: 13px; display: flex; justify-content: space-between; }
   .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
   .status-dot.loading { animation: pulse 1.5s infinite; }
   .status-dot.done { background: #4ade80; }
@@ -89,50 +85,46 @@
 <body>
 
 <div class="container">
-  <header><h1>FACE MEMORY</h1></header>
+  <header>
+    <h1>FACE MEMORY</h1>
+    <button class="lang-switch" onclick="toggleLang()" id="langBtn">English</button>
+  </header>
 
   <div class="intro-card" id="introCard">
-    <h2>✦ 写真で遊ぶ神経衰弱</h2>
-    <p>AIが集合写真から顔を切り出します。友達や家族の写真で遊んでみよう！</p>
+    <h2 data-ja="✦ 写真で遊ぶ神経衰弱" data-en="✦ Face Memory Game">✦ 写真で遊ぶ神経衰弱</h2>
+    <p data-ja="AIが集合写真から顔を切り出します。友達や家族の写真で遊んでみよう！" data-en="AI extracts faces from photos. Play with your family and friends!">AIが集合写真から顔を切り出します。友達や家族の写真で遊んでみよう！</p>
     
     <div class="guide-steps">
-      <div class="step"><span class="step-num">1</span><p>写真をアップ</p></div>
+      <div class="step"><span class="step-num">1</span><p data-ja="写真をアップ" data-en="Upload">写真をアップ</p></div>
       <div class="step-arrow">→</div>
-      <div class="step"><span class="step-num">2</span><p>AIが顔を抽出</p></div>
+      <div class="step"><span class="step-num">2</span><p data-ja="AIが抽出" data-en="AI Extract">AIが抽出</p></div>
       <div class="step-arrow">→</div>
-      <div class="step"><span class="step-num">3</span><p>ゲーム開始</p></div>
+      <div class="step"><span class="step-num">3</span><p data-ja="ゲーム開始" data-en="Start Game">ゲーム開始</p></div>
     </div>
 
     <div class="safety-note">
       <span style="font-size:20px">🛡️</span>
       <div>
-        <strong>安心・安全！</strong><br>
-        写真はあなたのスマホ内だけで処理されます。外に送られないので誰にも見られません。<br>
-        <span class="more-link" onclick="toggleModal(true)">＜より詳しい説明はこちら＞</span>
+        <strong data-ja="安心・安全！" data-en="Safe & Private!">安心・安全！</strong><br>
+        <span data-ja="写真はあなたのスマホ内だけで処理されます。" data-en="Your photos are processed only on your device.">写真はあなたのスマホ内だけで処理されます。</span><br>
+        <span class="more-link" onclick="toggleModal(true)" data-ja="＜より詳しい説明はこちら＞" data-en="<Technical Details>">＜より詳しい説明はこちら＞</span>
       </div>
     </div>
   </div>
 
   <div class="modal-overlay" id="modalOverlay">
     <div class="modal-content">
-      <h3>🔒 技術的な安全性の証明</h3>
-      <div class="modal-body">
-        本アプリは、ユーザーのプライバシー保護を最優先し、以下の**「クライアントサイド処理」**を採用しています。
-        <ul>
-          <li><strong>ローカル実行</strong>: 顔認識ライブラリ <code>face-api.js</code> を使用し、すべての演算をブラウザ上で行います。</li>
-          <li><strong>画像データの非保持</strong>: <code>FileReader API</code> で取得した画像はメモリ内の一時的な処理に使用され、サーバーへのアップロードは一切行われません。</li>
-          <li><strong>静的サイト構成</strong>: 本サイトにはバックエンド（保存用DB）が存在しないため、物理的にデータを収集する仕組みがありません。</li>
-        </ul>
-        開発者ツールのネットワークタブを確認することで、通信が発生していないことを検証可能です。
-      </div>
-      <button class="close-btn" onclick="toggleModal(false)">閉じる</button>
+      <h3 id="modalTitle">🔒 技術的な安全性の証明</h3>
+      <div class="modal-body" id="modalBody">
+        </div>
+      <button class="close-btn" onclick="toggleModal(false)" id="modalCloseBtn">閉じる</button>
     </div>
   </div>
 
   <div class="upload-zone loading" id="uploadZone">
     <div id="statusIcon" style="font-size: 36px; margin-bottom: 8px;">⏳</div>
-    <p id="uploadTitle" style="font-weight:700;">AIを準備中...</p>
-    <button class="btn btn-primary" id="selectBtn" disabled style="margin-top:20px; width:auto;">準備中</button>
+    <p id="uploadTitle" style="font-weight:700;" data-ja="AIを準備中..." data-en="Loading AI...">AIを準備中...</p>
+    <button class="btn btn-primary" id="selectBtn" disabled style="margin-top:20px; width:auto;" data-ja="準備中" data-en="Loading...">準備中</button>
     <input type="file" id="fileInput" accept="image/*">
   </div>
 
@@ -141,20 +133,20 @@
     <div class="status-bar">
       <div style="display:flex; align-items:center; gap:8px;">
         <div class="status-dot" id="statusDot"></div>
-        <span id="statusText">完了</span>
+        <span id="statusText"></span>
       </div>
       <span id="faceCountBadge" style="color:var(--accent); font-weight:700; background:rgba(124,109,250,0.1); padding:2px 10px; border-radius:10px;">0人</span>
     </div>
-    <button class="btn btn-primary" id="startGameBtn" style="display:none;">ゲームスタート！</button>
-    <button class="btn btn-ghost" onclick="resetToUpload()">別の写真にする</button>
+    <button class="btn btn-primary" id="startGameBtn" style="display:none;" data-ja="ゲームスタート！" data-en="Start Game!">ゲームスタート！</button>
+    <button class="btn btn-ghost" onclick="resetToUpload()" data-ja="別の写真にする" data-en="Pick another photo">別の写真にする</button>
   </div>
 
   <div class="game-section" id="gameSection">
     <div style="font-weight: 700; margin-bottom: 12px; text-align:center;">
-      のこり: <span id="gameRemain" style="color:var(--accent2); font-size: 1.2rem;">0</span> ペア
+      <span data-ja="のこり" data-en="Remain">のこり</span>: <span id="gameRemain" style="color:var(--accent2); font-size: 1.2rem;">0</span> <span data-ja="ペア" data-en="Pairs">ペア</span>
     </div>
     <div class="game-grid" id="gameGrid"></div>
-    <button class="btn btn-ghost" onclick="resetToUpload()" style="margin-top:24px;">タイトルにもどる</button>
+    <button class="btn btn-ghost" onclick="resetToUpload()" style="margin-top:24px;" data-ja="タイトルにもどる" data-en="Back to Title">タイトルにもどる</button>
   </div>
 </div>
 
@@ -164,9 +156,30 @@ let flippedCards = [];
 let isLock = false;
 let pairsFound = 0;
 let totalPairs = 0;
+let currentLang = 'ja';
 
-// モーダルの開閉
+// 言語切替
+function toggleLang() {
+  currentLang = currentLang === 'ja' ? 'en' : 'ja';
+  document.getElementById('langBtn').textContent = currentLang === 'ja' ? 'English' : '日本語';
+  document.querySelectorAll('[data-ja]').forEach(el => {
+    el.textContent = el.getAttribute('data-' + currentLang);
+  });
+  updateModalContent();
+}
+
+function updateModalContent() {
+  const content = {
+    ja: { title: "🔒 技術的な安全性の証明", body: "本アプリは、ユーザーのプライバシー保護のため、すべての演算をブラウザ上で行う「クライアントサイド処理」を採用しています。画像はメモリ内の一時的な処理に使用され、サーバーへのアップロードは一切行われません。", close: "閉じる" },
+    en: { title: "🔒 Technical Security", body: "This app uses 'client-side processing' where all calculations are done in your browser. Images are used for temporary memory processing and are never uploaded to any server.", close: "Close" }
+  };
+  document.getElementById('modalTitle').textContent = content[currentLang].title;
+  document.getElementById('modalBody').innerHTML = content[currentLang].body;
+  document.getElementById('modalCloseBtn').textContent = content[currentLang].close;
+}
+
 function toggleModal(show) {
+  if(show) updateModalContent();
   document.getElementById('modalOverlay').style.display = show ? 'flex' : 'none';
 }
 
@@ -176,26 +189,58 @@ async function init() {
     await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
     document.getElementById('uploadZone').classList.remove('loading');
     document.getElementById('statusIcon').textContent = '📸';
-    document.getElementById('uploadTitle').textContent = '写真をアップロード';
+    updateStatusText();
     const selectBtn = document.getElementById('selectBtn');
     selectBtn.disabled = false;
-    selectBtn.textContent = '写真を選ぶ';
+    updateSelectBtnText();
   } catch (e) {
-    document.getElementById('uploadTitle').textContent = '読み込み失敗';
+    document.getElementById('uploadTitle').textContent = 'Error loading AI';
   }
 }
 window.onload = init;
 
-document.getElementById('uploadZone').onclick = () => { if(!document.getElementById('uploadZone').classList.contains('loading')) document.getElementById('fileInput').click(); };
+function updateStatusText() {
+  const el = document.getElementById('uploadTitle');
+  el.textContent = currentLang === 'ja' ? '写真をアップロード' : 'Upload Photo';
+}
+
+function updateSelectBtnText() {
+  const el = document.getElementById('selectBtn');
+  el.textContent = currentLang === 'ja' ? '写真を選ぶ' : 'Choose Photo';
+}
+
+// 修正ポイント：二回目以降もしっかり動作させるためのリセット処理
+function resetToUpload() {
+  faceImages = [];
+  flippedCards = [];
+  pairsFound = 0;
+  isLock = false;
+  
+  document.getElementById('fileInput').value = ""; // 入力を空にする（同じファイルを再度選んだときも発火するように）
+  document.getElementById('introCard').style.display = 'block';
+  document.getElementById('uploadZone').style.display = 'block';
+  document.getElementById('previewSection').classList.remove('visible');
+  document.getElementById('gameSection').classList.remove('visible');
+  document.getElementById('startGameBtn').style.display = 'none';
+  document.getElementById('faceCountBadge').textContent = '0人';
+}
+
+document.getElementById('uploadZone').onclick = () => { 
+  if(!document.getElementById('uploadZone').classList.contains('loading')) {
+    document.getElementById('fileInput').click(); 
+  }
+};
 
 document.getElementById('fileInput').onchange = async (e) => {
   const file = e.target.files[0];
   if (!file) return;
 
+  // UI切り替え
   document.getElementById('introCard').style.display = 'none';
   document.getElementById('uploadZone').style.display = 'none';
   document.getElementById('previewSection').classList.add('visible');
-  updateStatus('loading', 'AIが顔を探しています...');
+  
+  updateStatus('loading', currentLang === 'ja' ? 'AIが顔を探しています...' : 'AI is searching for faces...');
 
   const img = await faceapi.bufferToImage(file);
   const canvas = document.getElementById('originalCanvas');
@@ -206,14 +251,16 @@ document.getElementById('fileInput').onchange = async (e) => {
   ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
 
   const detections = await faceapi.detectAllFaces(img, new faceapi.TinyFaceDetectorOptions());
-  document.getElementById('faceCountBadge').textContent = `${detections.length}人`;
+  document.getElementById('faceCountBadge').textContent = detections.length + (currentLang === 'ja' ? '人' : ' faces');
 
   if (detections.length < 2) {
-    updateStatus('error', '二人以上の顔が認識できません。他の写真にしてください。');
+    updateStatus('error', currentLang === 'ja' ? '2人以上の顔が必要です' : 'Need at least 2 faces');
     return;
   }
 
-  updateStatus('done', '解析完了！');
+  updateStatus('done', currentLang === 'ja' ? '解析完了！' : 'Analysis Complete!');
+  
+  // 検出された顔の切り出し
   faceImages = detections.map(d => {
     const { x, y, width, height } = d.box;
     const faceCanvas = document.createElement('canvas');
@@ -222,16 +269,9 @@ document.getElementById('fileInput').onchange = async (e) => {
     fCtx.drawImage(img, x, y, width, height, 0, 0, 150, 150);
     return faceCanvas.toDataURL();
   });
+
   document.getElementById('startGameBtn').style.display = 'flex';
 };
-
-function resetToUpload() {
-  document.getElementById('introCard').style.display = 'block';
-  document.getElementById('uploadZone').style.display = 'block';
-  document.getElementById('previewSection').classList.remove('visible');
-  document.getElementById('gameSection').classList.remove('visible');
-  document.getElementById('fileInput').value = '';
-}
 
 document.getElementById('startGameBtn').onclick = () => {
   document.getElementById('previewSection').style.display = 'none';
@@ -245,9 +285,11 @@ function setupGame() {
   flippedCards = [];
   pairsFound = 0;
   isLock = false;
+
   const numPairs = Math.min(faceImages.length, 12);
   totalPairs = numPairs;
   document.getElementById('gameRemain').textContent = totalPairs;
+
   const selectedFaces = faceImages.slice(0, numPairs);
   const gameCards = [...selectedFaces, ...selectedFaces].sort(() => Math.random() - 0.5);
 
@@ -269,7 +311,9 @@ function setupGame() {
             pairsFound++;
             document.getElementById('gameRemain').textContent = totalPairs - pairsFound;
             flippedCards = []; isLock = false;
-            if (pairsFound === totalPairs) alert('🎉 クリア！');
+            if (pairsFound === totalPairs) {
+              alert(currentLang === 'ja' ? '🎉 クリア！' : '🎉 CLEAR!');
+            }
           }, 500);
         } else {
           setTimeout(() => {

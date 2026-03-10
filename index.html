@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>AI Face Memory Game</title>
+<script defer src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Syne:wght@700;800&family=Noto+Sans+JP:wght@400;700&display=swap');
+
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --card: #1a1a26;
+    --accent: #7c6dfa;
+    --accent2: #fa6d9a;
+    --text: #e8e8f0;
+    --muted: #6b6b8a;
+    --border: rgba(124,109,250,0.2);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  body { background: var(--bg); color: var(--text); font-family: 'Noto Sans JP', sans-serif; min-height: 100vh; overflow-x: hidden; }
+  .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+  header { text-align: center; margin-bottom: 20px; }
+  h1 { font-family: 'Syne', sans-serif; font-size: 1.8rem; background: linear-gradient(135deg, #fff, var(--accent)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
+
+  /* 説明カード */
+  .intro-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 24px; }
+  .intro-card h2 { color: var(--accent); font-size: 15px; margin-bottom: 10px; }
+  .intro-card p { font-size: 13px; line-height: 1.6; color: var(--text); }
+
+  /* 安全についての説明 */
+  .safety-note { background: rgba(74, 222, 128, 0.05); border: 1px solid rgba(74, 222, 128, 0.2); border-radius: 12px; padding: 12px; margin-top: 15px; display: flex; align-items: flex-start; gap: 10px; }
+  .safety-note div { font-size: 12px; color: #4ade80; line-height: 1.5; }
+  .more-link { display: inline-block; margin-top: 8px; color: var(--accent); text-decoration: underline; cursor: pointer; font-weight: 700; }
+
+  /* ポップアップ窓（専門用語解説用） */
+  .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+  .modal-content { background: var(--card); border: 1px solid var(--border); border-radius: 20px; width: 90%; max-width: 500px; padding: 24px; position: relative; animation: modalIn 0.3s ease; }
+  .modal-content h3 { font-size: 18px; margin-bottom: 16px; color: var(--accent); display: flex; align-items: center; gap: 8px; }
+  .modal-body { font-size: 13px; line-height: 1.7; color: var(--text); }
+  .modal-body strong { color: var(--accent2); }
+  .modal-body ul { margin: 12px 0; padding-left: 20px; }
+  .close-btn { margin-top: 20px; width: 100%; background: var(--surface); color: var(--text); border: 1px solid var(--border); padding: 12px; border-radius: 100px; cursor: pointer; font-weight: 700; }
+
+  @keyframes modalIn { from { opacity: 0; transform: translateY(20px) scale(0.95); } to { opacity: 1; transform: translateY(0) scale(1); } }
+
+  /* フローチャート */
+  .guide-steps { display: flex; align-items: center; justify-content: space-between; margin-top: 15px; gap: 8px; }
+  .step { flex: 1; background: rgba(255, 255, 255, 0.03); padding: 10px 5px; border-radius: 10px; text-align: center; border: 1px solid rgba(255, 255, 255, 0.05); }
+  .step-num { color: var(--accent2); font-family: 'Syne'; font-size: 18px; font-weight: 800; display: block; }
+  .step p { font-size: 10px; white-space: nowrap; }
+  .step-arrow { color: var(--muted); font-size: 14px; }
+
+  /* アップロード */
+  .upload-zone { border: 2px dashed var(--border); border-radius: 20px; padding: 40px 20px; text-align: center; background: var(--surface); cursor: pointer; transition: 0.3s; }
+  .upload-zone.loading { opacity: 0.5; pointer-events: none; }
+  #fileInput { display: none; }
+
+  .btn { display: inline-flex; align-items: center; justify-content: center; padding: 14px 24px; border-radius: 100px; font-weight: 700; cursor: pointer; border: none; font-size: 14px; }
+  .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: white; width: 100%; box-shadow: 0 4px 15px rgba(124,109,250,0.3); }
+  .btn-ghost { background: rgba(255,255,255,0.05); color: var(--text); border: 1px solid var(--border); margin-top: 10px; width: 100%; }
+
+  .preview-section, .game-section { display: none; margin-top: 10px; animation: fadeIn 0.4s ease; }
+  .preview-section.visible, .game-section.visible { display: block; }
+  #originalCanvas { width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--border); }
+  
+  .status-bar { margin: 15px 0; padding: 12px; background: var(--card); border-radius: 8px; font-size: 13px; display: flex; justify-content: space-between; align-items: center; }
+  .status-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); }
+  .status-dot.loading { animation: pulse 1.5s infinite; }
+  .status-dot.done { background: #4ade80; }
+
+  .game-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 15px; perspective: 1000px; }
+  @media (max-width: 450px) { .game-grid { grid-template-columns: repeat(3, 1fr); } }
+
+  .memory-card { aspect-ratio: 1; position: relative; transform-style: preserve-3d; transition: transform 0.4s; }
+  .memory-card.flipped { transform: rotateY(180deg); }
+  .memory-card.matched { opacity: 0.3; pointer-events: none; transform: rotateY(180deg) scale(0.9); }
+  .card-face { position: absolute; width: 100%; height: 100%; backface-visibility: hidden; border-radius: 8px; border: 1px solid var(--border); display: flex; align-items: center; justify-content: center; }
+  .card-back { background: var(--card); color: var(--accent); font-size: 20px; }
+  .card-front { background: #000; transform: rotateY(180deg); overflow: hidden; }
+  .card-front img { width: 100%; height: 100%; object-fit: cover; }
+
+  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(1.3); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+</style>
+</head>
+<body>
+
+<div class="container">
+  <header><h1>FACE MEMORY</h1></header>
+
+  <div class="intro-card" id="introCard">
+    <h2>✦ 写真で遊ぶ神経衰弱</h2>
+    <p>AIが集合写真から顔を切り出します。友達や家族の写真で遊んでみよう！</p>
+    
+    <div class="guide-steps">
+      <div class="step"><span class="step-num">1</span><p>写真をアップ</p></div>
+      <div class="step-arrow">→</div>
+      <div class="step"><span class="step-num">2</span><p>AIが顔を抽出</p></div>
+      <div class="step-arrow">→</div>
+      <div class="step"><span class="step-num">3</span><p>ゲーム開始</p></div>
+    </div>
+
+    <div class="safety-note">
+      <span style="font-size:20px">🛡️</span>
+      <div>
+        <strong>安心・安全！</strong><br>
+        写真はあなたのスマホ内だけで処理されます。外に送られないので誰にも見られません。<br>
+        <span class="more-link" onclick="toggleModal(true)">＜より詳しい説明はこちら＞</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay" id="modalOverlay">
+    <div class="modal-content">
+      <h3>🔒 技術的な安全性の証明</h3>
+      <div class="modal-body">
+        本アプリは、ユーザーのプライバシー保護を最優先し、以下の**「クライアントサイド処理」**を採用しています。
+        <ul>
+          <li><strong>ローカル実行</strong>: 顔認識ライブラリ <code>face-api.js</code> を使用し、すべての演算をブラウザ上で行います。</li>
+          <li><strong>画像データの非保持</strong>: <code>FileReader API</code> で取得した画像はメモリ内の一時的な処理に使用され、サーバーへのアップロードは一切行われません。</li>
+          <li><strong>静的サイト構成</strong>: 本サイトにはバックエンド（保存用DB）が存在しないため、物理的にデータを収集する仕組みがありません。</li>
+        </ul>
+        開発者ツールのネットワークタブを確認することで、通信が発生していないことを検証可能です。
+      </div>
+      <button class="close-btn" onclick="toggleModal(false)">閉じる</button>
+    </div>
+  </div>
+
+  <div class="upload-zone loading" id="uploadZone">
+    <div id="statusIcon" style="font-size: 36px; margin-bottom: 8px;">⏳</div>
+    <p id="uploadTitle" style="font-weight:700;">AIを準備中...</p>
+    <button class="btn btn-primary" id="selectBtn" disabled style="margin-top:20px; width:auto;">準備中</button>
+    <input type="file" id="fileInput" accept="image/*">
+  </div>
+
+  <div class="preview-section" id="previewSection">
+    <canvas id="originalCanvas"></canvas>
+    <div class="status-bar">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <div class="status-dot" id="statusDot"></div>
+        <span id="statusText">完了</span>
+      </div>
+      <span id="faceCountBadge" style="color:var(--accent); font-weight:700; background:rgba(124,109,250,0.1); padding:2px 10px; border-radius:10px;">0人</span>
+    </div>
+    <button class="btn btn-primary" id="startGameBtn" style="display:none;">ゲームスタート！</button>
+    <button class="btn btn-ghost" onclick="resetToUpload()">別の写真にする</button>
+  </div>
+
+  <div class="game-section" id="gameSection">
+    <div style="font-weight: 700; margin-bottom: 12px; text-align:center;">
+      のこり: <span id="gameRemain" style="color:var(--accent2); font-size: 1.2rem;">0</span> ペア
+    </div>
+    <div class="game-grid" id="gameGrid"></div>
+    <button class="btn btn-ghost" onclick="resetToUpload()" style="margin-top:24px;">タイトルにもどる</button>
+  </div>
+</div>
+
+<script>
+let faceImages = [];
+let flippedCards = [];
+let isLock = false;
+let pairsFound = 0;
+let totalPairs = 0;
+
+// モーダルの開閉
+function toggleModal(show) {
+  document.getElementById('modalOverlay').style.display = show ? 'flex' : 'none';
+}
+
+async function init() {
+  const MODEL_URL = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model/';
+  try {
+    await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+    document.getElementById('uploadZone').classList.remove('loading');
+    document.getElementById('statusIcon').textContent = '📸';
+    document.getElementById('uploadTitle').textContent = '写真をアップロード';
+    const selectBtn = document.getElementById('selectBtn');
+    selectBtn.disabled = false;
+    selectBtn.textContent = '写真を選ぶ';
+  } catch (e) {
+    document.getElementById('uploadTitle').textContent = '読み込み失敗';
+  }
+}
+window.onload = init;
+
+document.getElementById('uploadZone').onclick = () => { if(!document.getElementById('uploadZone').classList.contains('loading')) document.getElementById('fileInput').click(); };
+
+document.getElementById('fileInput').onchange = async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  document.getElementById('introCard').style.display = 'none';
+  document.getElementById('uploadZone').style.display = 'none';
+  document.getElementById('previewSection').classList.add('visible');
+  updateStatus('loading', 'AIが顔を探しています...');
+
+  const img = await faceapi.bufferToImage(file);
+  const canvas = document.getElementById('originalCanvas');
+  const ctx = canvas.getContext('2d');
+  const scale = Math.min(1, 800 / Math.max(img.width, img.height));
+  canvas.width = img.width * scale;
+  canvas.height = img.height * scale;
+  ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+
+  const detections = await faceapi.detectAllFaces(img, new faceapi.TinyFaceDetectorOptions());
+  document.getElementById('faceCountBadge').textContent = `${detections.length}人`;
+
+  if (detections.length < 2) {
+    updateStatus('error', '二人以上の顔が認識できません。他の写真にしてください。');
+    return;
+  }
+
+  updateStatus('done', '解析完了！');
+  faceImages = detections.map(d => {
+    const { x, y, width, height } = d.box;
+    const faceCanvas = document.createElement('canvas');
+    faceCanvas.width = 150; faceCanvas.height = 150;
+    const fCtx = faceCanvas.getContext('2d');
+    fCtx.drawImage(img, x, y, width, height, 0, 0, 150, 150);
+    return faceCanvas.toDataURL();
+  });
+  document.getElementById('startGameBtn').style.display = 'flex';
+};
+
+function resetToUpload() {
+  document.getElementById('introCard').style.display = 'block';
+  document.getElementById('uploadZone').style.display = 'block';
+  document.getElementById('previewSection').classList.remove('visible');
+  document.getElementById('gameSection').classList.remove('visible');
+  document.getElementById('fileInput').value = '';
+}
+
+document.getElementById('startGameBtn').onclick = () => {
+  document.getElementById('previewSection').style.display = 'none';
+  document.getElementById('gameSection').classList.add('visible');
+  setupGame();
+};
+
+function setupGame() {
+  const grid = document.getElementById('gameGrid');
+  grid.innerHTML = '';
+  flippedCards = [];
+  pairsFound = 0;
+  isLock = false;
+  const numPairs = Math.min(faceImages.length, 12);
+  totalPairs = numPairs;
+  document.getElementById('gameRemain').textContent = totalPairs;
+  const selectedFaces = faceImages.slice(0, numPairs);
+  const gameCards = [...selectedFaces, ...selectedFaces].sort(() => Math.random() - 0.5);
+
+  gameCards.forEach(src => {
+    const card = document.createElement('div');
+    card.className = 'memory-card';
+    card.dataset.id = src;
+    card.innerHTML = `<div class="card-face card-back">?</div><div class="card-face card-front"><img src="${src}"></div>`;
+    card.onclick = () => {
+      if (isLock || card.classList.contains('flipped') || card.classList.contains('matched')) return;
+      card.classList.add('flipped');
+      flippedCards.push(card);
+      if (flippedCards.length === 2) {
+        isLock = true;
+        const [c1, c2] = flippedCards;
+        if (c1.dataset.id === c2.dataset.id) {
+          setTimeout(() => {
+            c1.classList.add('matched'); c2.classList.add('matched');
+            pairsFound++;
+            document.getElementById('gameRemain').textContent = totalPairs - pairsFound;
+            flippedCards = []; isLock = false;
+            if (pairsFound === totalPairs) alert('🎉 クリア！');
+          }, 500);
+        } else {
+          setTimeout(() => {
+            c1.classList.remove('flipped'); c2.classList.remove('flipped');
+            flippedCards = []; isLock = false;
+          }, 800);
+        }
+      }
+    };
+    grid.appendChild(card);
+  });
+}
+
+function updateStatus(type, text) {
+  const dot = document.getElementById('statusDot');
+  document.getElementById('statusText').textContent = text;
+  dot.className = 'status-dot ' + (type === 'loading' ? 'loading' : 'done');
+}
+</script>
+</body>
+</html>

@@ -28,7 +28,6 @@
 
   .lang-switch { background: var(--card); border: 1px solid var(--border); color: var(--text); padding: 5px 12px; border-radius: 20px; font-size: 12px; cursor: pointer; font-weight: bold; }
 
-  /* 説明カード */
   .intro-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 20px; margin-bottom: 24px; }
   .intro-card h2 { color: var(--accent); font-size: 15px; margin-bottom: 10px; }
   .intro-card p { font-size: 13px; line-height: 1.6; }
@@ -42,13 +41,11 @@
   .safety-note { background: rgba(74, 222, 128, 0.05); border: 1px solid rgba(74, 222, 128, 0.2); border-radius: 12px; padding: 12px; margin-top: 15px; display: flex; align-items: flex-start; gap: 10px; font-size: 12px; color: #4ade80; }
   .more-link { display: inline-block; margin-top: 8px; color: var(--accent); text-decoration: underline; cursor: pointer; font-weight: 700; }
 
-  /* モーダル */
   .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
   .modal-content { background: var(--card); border: 1px solid var(--border); border-radius: 20px; width: 90%; max-width: 500px; padding: 24px; }
   .modal-body { font-size: 13px; line-height: 1.7; }
   .close-btn { margin-top: 20px; width: 100%; background: var(--surface); color: var(--text); border: 1px solid var(--border); padding: 12px; border-radius: 100px; cursor: pointer; }
 
-  /* アップロード */
   .upload-zone { border: 2px dashed var(--border); border-radius: 20px; padding: 40px 20px; text-align: center; background: var(--surface); cursor: pointer; }
   .upload-zone.loading { opacity: 0.5; pointer-events: none; }
   #fileInput { display: none; }
@@ -57,7 +54,6 @@
   .btn-primary { background: linear-gradient(135deg, var(--accent), var(--accent2)); color: white; width: 100%; }
   .btn-ghost { background: rgba(255,255,255,0.05); color: var(--text); border: 1px solid var(--border); margin-top: 10px; width: 100%; }
 
-  /* プレビュー & コントロールパネル */
   .preview-section, .game-section { display: none; margin-top: 10px; animation: fadeIn 0.4s ease; }
   .preview-section.visible, .game-section.visible { display: block; }
   #originalCanvas { width: 100%; height: auto; border-radius: 12px; border: 1px solid var(--border); }
@@ -80,7 +76,6 @@
   .range-slider { width: 100%; height: 6px; background: rgba(255,255,255,0.1); border-radius: 5px; outline: none; appearance: none; cursor: pointer; }
   .range-slider::-webkit-slider-thumb { appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); border: 2px solid white; cursor: pointer; }
 
-  /* ゲームグリッド */
   .game-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; margin-top: 15px; perspective: 1000px; }
   @media (max-width: 450px) { .game-grid { grid-template-columns: repeat(3, 1fr); } }
   .memory-card { aspect-ratio: 1; position: relative; transform-style: preserve-3d; transition: transform 0.4s; cursor: pointer; }
@@ -184,6 +179,7 @@ let isLock = false;
 let pairsFound = 0;
 let totalPairs = 0;
 let currentLang = 'ja';
+let lastDetectedCount = 0;
 
 const translations = {
   ja: {
@@ -191,18 +187,20 @@ const translations = {
     s1: "写真をアップ", s2: "AIが抽出", s3: "ゲーム開始", safe: "安心・安全！", safedesc: "写真はあなたのスマホ内だけで処理されます。",
     more: "＜より詳しい説明はこちら＞", loading: "AIを準備中...", select: "写真を選ぶ", start: "ゲームスタート！",
     reset: "別の写真にする", remain: "のこり", pair: "ペア", back: "タイトルにもどる", 
-    detecting: "高精度AIが解析中...", done: "解析完了！", error: "2人以上の顔が必要です",
+    detecting: "AIが顔を探しています...", analyzing: "高精度AIが解析中...", done: "解析完了！", error: "2人以上の顔が必要です",
     selectNum: "使用する人数", badge: "検出", modalT: "🔒 技術的な安全性の証明",
-    modalB: "本アプリは、顔認識ライブラリ face-api.js を使用し、すべての演算をブラウザ上で行う「クライアントサイド処理」を採用しています。画像はメモリ内の一時的な処理に使用され、サーバーへのアップロードは一切行われません。", modalC: "閉じる"
+    modalB: "本アプリは、顔認識ライブラリ face-api.js を使用し、すべての演算をブラウザ上で行う「クライアントサイド処理」を採用しています。画像はメモリ内の一時的な処理に使用され、サーバーへのアップロードは一切行われません。", modalC: "閉じる",
+    uploadReady: "写真をアップロード", unit: "人", clear: "クリア！"
   },
   en: {
     title: "✦ Face Memory Game", desc: "AI extracts faces from photos. Play with your family and friends!",
     s1: "Upload", s2: "AI Extract", s3: "Start Game", safe: "Safe & Private!", safedesc: "Your photos are processed only on your device.",
     more: "<Technical Details>", loading: "Loading AI...", select: "Choose Photo", start: "Start Game!",
     reset: "Pick another photo", remain: "Remain", pair: "Pairs", back: "Back to Title",
-    detecting: "AI is analyzing...", done: "Analysis Complete!", error: "Need at least 2 faces",
+    detecting: "AI is looking for faces...", analyzing: "AI is analyzing...", done: "Analysis Complete!", error: "Need at least 2 faces",
     selectNum: "Number of People", badge: "Found", modalT: "🔒 Technical Security",
-    modalB: "This app uses face-api.js for local browser-side processing. Images are never uploaded to any server, ensuring complete privacy.", modalC: "Close"
+    modalB: "This app uses face-api.js for local browser-side processing. Images are never uploaded to any server, ensuring complete privacy.", modalC: "Close",
+    uploadReady: "Upload Photo", unit: " faces", clear: "CLEAR!"
   }
 };
 
@@ -212,10 +210,8 @@ async function init() {
     await faceapi.nets.ssdMobilenetv1.loadFromUri(MODEL_URL);
     document.getElementById('uploadZone').classList.remove('loading');
     document.getElementById('statusIcon').textContent = '📸';
-    document.getElementById('selectBtn').textContent = currentLang === 'ja' ? '写真を選ぶ' : 'Choose Photo';
     document.getElementById('selectBtn').disabled = false;
-    document.getElementById('uploadTitle').textContent = currentLang === 'ja' ? '写真をアップロード' : 'Upload Photo';
-    updateUI();
+    updateUI(); 
   } catch (e) {
     document.getElementById('uploadTitle').textContent = "Model Error";
   }
@@ -223,6 +219,8 @@ async function init() {
 
 function updateUI() {
   const t = translations[currentLang];
+  
+  // 各種ラベルの更新
   document.querySelector('.t-title').textContent = t.title;
   document.querySelector('.t-desc').textContent = t.desc;
   document.querySelector('.t-s1').textContent = t.s1;
@@ -239,12 +237,40 @@ function updateUI() {
   document.querySelector('.t-select-num').textContent = t.selectNum;
   document.getElementById('badgeLabel').textContent = t.badge;
   document.getElementById('langBtn').textContent = currentLang === 'ja' ? 'English' : '日本語';
+
+  // アップロードエリアとボタンの翻訳
+  const selectBtn = document.getElementById('selectBtn');
+  const uploadTitle = document.getElementById('uploadTitle');
+  if (selectBtn.disabled) {
+    uploadTitle.textContent = t.loading;
+    selectBtn.textContent = "Loading...";
+  } else {
+    uploadTitle.textContent = t.uploadReady;
+    selectBtn.textContent = t.select;
+  }
+
+  // ステータス表示の翻訳 (状態に応じて)
+  const statusText = document.getElementById('statusText');
+  const dot = document.getElementById('statusDot');
+  if (dot.classList.contains('loading')) {
+    statusText.textContent = t.analyzing;
+  } else if (dot.classList.contains('done')) {
+    statusText.textContent = t.done;
+  } else if (dot.classList.contains('error')) {
+    statusText.textContent = t.error;
+  } else {
+    statusText.textContent = t.detecting;
+  }
+
+  // カウント表示の更新
+  document.getElementById('faceCountBadge').textContent = lastDetectedCount + t.unit;
+
   updateSliderText();
 }
 
 function updateSliderText() {
   const val = document.getElementById('pairSlider').value;
-  document.getElementById('sliderValueText').textContent = val + (currentLang === 'ja' ? '人' : ' people');
+  document.getElementById('sliderValueText').textContent = val + translations[currentLang].unit;
 }
 
 function resetToUpload() {
@@ -252,6 +278,7 @@ function resetToUpload() {
   flippedCards = [];
   isLock = false;
   pairsFound = 0;
+  lastDetectedCount = 0;
   document.getElementById('fileInput').value = ""; 
   document.getElementById('introCard').style.display = 'block';
   document.getElementById('uploadZone').style.display = 'block';
@@ -260,6 +287,8 @@ function resetToUpload() {
   document.getElementById('sliderArea').style.display = 'none';
   document.getElementById('startGameBtn').style.display = 'none';
   document.getElementById('statusDot').className = 'status-dot';
+  document.getElementById('faceCountBadge').textContent = "0" + translations[currentLang].unit;
+  updateUI();
 }
 
 async function handleFile(e) {
@@ -272,7 +301,7 @@ async function handleFile(e) {
   
   const statusLabel = document.getElementById('statusText');
   const dot = document.getElementById('statusDot');
-  statusLabel.textContent = translations[currentLang].detecting;
+  statusLabel.textContent = translations[currentLang].analyzing;
   dot.className = 'status-dot loading';
 
   try {
@@ -285,7 +314,8 @@ async function handleFile(e) {
     const ctx = canvas.getContext('2d');
     ctx.drawImage(img, 0, 0);
     
-    document.getElementById('faceCountBadge').textContent = detections.length + (currentLang === 'ja' ? '人' : ' faces');
+    lastDetectedCount = detections.length;
+    document.getElementById('faceCountBadge').textContent = lastDetectedCount + translations[currentLang].unit;
 
     if (detections.length < 2) {
       statusLabel.textContent = translations[currentLang].error;
@@ -296,7 +326,6 @@ async function handleFile(e) {
     statusLabel.textContent = translations[currentLang].done;
     dot.className = 'status-dot done';
 
-    // スライダー更新
     const slider = document.getElementById('pairSlider');
     slider.max = detections.length;
     slider.value = detections.length;
@@ -356,7 +385,7 @@ function startMemoryGame() {
             pairsFound++;
             document.getElementById('gameRemain').textContent = totalPairs - pairsFound;
             flippedCards = []; isLock = false;
-            if (pairsFound === totalPairs) alert('CLEAR!');
+            if (pairsFound === totalPairs) alert(translations[currentLang].clear);
           }, 500);
         } else {
           setTimeout(() => {
